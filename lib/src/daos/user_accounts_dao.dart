@@ -39,7 +39,7 @@ class UserAccountsDao extends DatabaseAccessor<MonolithDatabase>
     if (userAccount == null) {
       return null;
     }
-    if (Crypt(password).match(userAccount.passwordHash)) {
+    if (Crypt(userAccount.passwordHash).match(password)) {
       return userAccount;
     }
     return null;
