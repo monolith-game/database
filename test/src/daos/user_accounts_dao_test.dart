@@ -1,8 +1,9 @@
-import 'package:database/database.dart';
 import 'package:test/test.dart';
 
+import '../../get_database.dart';
+
 void main() {
-  final database = MonolithDatabase();
+  final database = getDatabase();
   tearDownAll(database.close);
   final userAccountsDao = database.userAccountsDao;
 

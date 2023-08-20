@@ -4,6 +4,7 @@
     "bools",
     "Colors",
     "daos",
+    "ffi",
     "formals",
     "pubspec",
     "todos",
