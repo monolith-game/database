@@ -4,8 +4,10 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 
 import 'daos/characters_dao.dart';
+import 'daos/sounds_dao.dart';
 import 'daos/user_accounts_dao.dart';
 import 'tables/characters.dart';
+import 'tables/sounds.dart';
 import 'tables/user_accounts.dart';
 
 part 'database.g.dart';
@@ -15,10 +17,12 @@ part 'database.g.dart';
   tables: [
     UserAccounts,
     Characters,
+    Sounds,
   ],
   daos: [
     UserAccountsDao,
     CharactersDao,
+    SoundsDao,
   ],
 )
 class MonolithDatabase extends _$MonolithDatabase {

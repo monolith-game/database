@@ -478,20 +478,229 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   }
 }
 
+class $SoundsTable extends Sounds with TableInfo<$SoundsTable, Sound> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SoundsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _pathMeta = const VerificationMeta('path');
+  @override
+  late final GeneratedColumn<String> path = GeneratedColumn<String>(
+      'path', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _gainMeta = const VerificationMeta('gain');
+  @override
+  late final GeneratedColumn<double> gain = GeneratedColumn<double>(
+      'gain', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.7));
+  @override
+  List<GeneratedColumn> get $columns => [id, path, gain];
+  @override
+  String get aliasedName => _alias ?? 'sounds';
+  @override
+  String get actualTableName => 'sounds';
+  @override
+  VerificationContext validateIntegrity(Insertable<Sound> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('path')) {
+      context.handle(
+          _pathMeta, path.isAcceptableOrUnknown(data['path']!, _pathMeta));
+    } else if (isInserting) {
+      context.missing(_pathMeta);
+    }
+    if (data.containsKey('gain')) {
+      context.handle(
+          _gainMeta, gain.isAcceptableOrUnknown(data['gain']!, _gainMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Sound map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Sound(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      path: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}path'])!,
+      gain: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}gain'])!,
+    );
+  }
+
+  @override
+  $SoundsTable createAlias(String alias) {
+    return $SoundsTable(attachedDatabase, alias);
+  }
+}
+
+class Sound extends DataClass implements Insertable<Sound> {
+  /// The primary key.
+  final int id;
+
+  /// The path to the sound.
+  final String path;
+
+  /// The gain of the sound.
+  final double gain;
+  const Sound({required this.id, required this.path, required this.gain});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['path'] = Variable<String>(path);
+    map['gain'] = Variable<double>(gain);
+    return map;
+  }
+
+  SoundsCompanion toCompanion(bool nullToAbsent) {
+    return SoundsCompanion(
+      id: Value(id),
+      path: Value(path),
+      gain: Value(gain),
+    );
+  }
+
+  factory Sound.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Sound(
+      id: serializer.fromJson<int>(json['id']),
+      path: serializer.fromJson<String>(json['path']),
+      gain: serializer.fromJson<double>(json['gain']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'path': serializer.toJson<String>(path),
+      'gain': serializer.toJson<double>(gain),
+    };
+  }
+
+  Sound copyWith({int? id, String? path, double? gain}) => Sound(
+        id: id ?? this.id,
+        path: path ?? this.path,
+        gain: gain ?? this.gain,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Sound(')
+          ..write('id: $id, ')
+          ..write('path: $path, ')
+          ..write('gain: $gain')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, path, gain);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Sound &&
+          other.id == this.id &&
+          other.path == this.path &&
+          other.gain == this.gain);
+}
+
+class SoundsCompanion extends UpdateCompanion<Sound> {
+  final Value<int> id;
+  final Value<String> path;
+  final Value<double> gain;
+  const SoundsCompanion({
+    this.id = const Value.absent(),
+    this.path = const Value.absent(),
+    this.gain = const Value.absent(),
+  });
+  SoundsCompanion.insert({
+    this.id = const Value.absent(),
+    required String path,
+    this.gain = const Value.absent(),
+  }) : path = Value(path);
+  static Insertable<Sound> custom({
+    Expression<int>? id,
+    Expression<String>? path,
+    Expression<double>? gain,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (path != null) 'path': path,
+      if (gain != null) 'gain': gain,
+    });
+  }
+
+  SoundsCompanion copyWith(
+      {Value<int>? id, Value<String>? path, Value<double>? gain}) {
+    return SoundsCompanion(
+      id: id ?? this.id,
+      path: path ?? this.path,
+      gain: gain ?? this.gain,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (gain.present) {
+      map['gain'] = Variable<double>(gain.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SoundsCompanion(')
+          ..write('id: $id, ')
+          ..write('path: $path, ')
+          ..write('gain: $gain')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$MonolithDatabase extends GeneratedDatabase {
   _$MonolithDatabase(QueryExecutor e) : super(e);
   late final $UserAccountsTable userAccounts = $UserAccountsTable(this);
   late final $CharactersTable characters = $CharactersTable(this);
+  late final $SoundsTable sounds = $SoundsTable(this);
   late final UserAccountsDao userAccountsDao =
       UserAccountsDao(this as MonolithDatabase);
   late final CharactersDao charactersDao =
       CharactersDao(this as MonolithDatabase);
+  late final SoundsDao soundsDao = SoundsDao(this as MonolithDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [userAccounts, characters];
+      [userAccounts, characters, sounds];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
         [
