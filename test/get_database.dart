@@ -18,6 +18,6 @@ MonolithDatabase getDatabase() {
     ..overrideFor(OperatingSystem.windows, _openOnWindows)
     ..overrideFor(OperatingSystem.linux, _openOnLinux);
   final db = MonolithDatabase();
-  addTearDown(db.close);
+  tearDownAll(db.close);
   return db;
 }
