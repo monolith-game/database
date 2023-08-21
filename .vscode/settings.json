@@ -6,6 +6,9 @@
     "daos",
     "ffi",
     "formals",
+    "fullchain",
+    "pem",
+    "privkey",
     "pubspec",
     "todos",
     "unawaited"

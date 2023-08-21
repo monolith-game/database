@@ -685,22 +685,795 @@ class SoundsCompanion extends UpdateCompanion<Sound> {
   }
 }
 
+class $ServerSecurityContextsTable extends ServerSecurityContexts
+    with TableInfo<$ServerSecurityContextsTable, ServerSecurityContext> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ServerSecurityContextsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _chainFilePathMeta =
+      const VerificationMeta('chainFilePath');
+  @override
+  late final GeneratedColumn<String> chainFilePath = GeneratedColumn<String>(
+      'chain_file_path', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _chainPasswordMeta =
+      const VerificationMeta('chainPassword');
+  @override
+  late final GeneratedColumn<String> chainPassword = GeneratedColumn<String>(
+      'chain_password', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _keyFilePathMeta =
+      const VerificationMeta('keyFilePath');
+  @override
+  late final GeneratedColumn<String> keyFilePath = GeneratedColumn<String>(
+      'key_file_path', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _keyPasswordMeta =
+      const VerificationMeta('keyPassword');
+  @override
+  late final GeneratedColumn<String> keyPassword = GeneratedColumn<String>(
+      'key_password', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, chainFilePath, chainPassword, keyFilePath, keyPassword];
+  @override
+  String get aliasedName => _alias ?? 'server_security_contexts';
+  @override
+  String get actualTableName => 'server_security_contexts';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ServerSecurityContext> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('chain_file_path')) {
+      context.handle(
+          _chainFilePathMeta,
+          chainFilePath.isAcceptableOrUnknown(
+              data['chain_file_path']!, _chainFilePathMeta));
+    } else if (isInserting) {
+      context.missing(_chainFilePathMeta);
+    }
+    if (data.containsKey('chain_password')) {
+      context.handle(
+          _chainPasswordMeta,
+          chainPassword.isAcceptableOrUnknown(
+              data['chain_password']!, _chainPasswordMeta));
+    }
+    if (data.containsKey('key_file_path')) {
+      context.handle(
+          _keyFilePathMeta,
+          keyFilePath.isAcceptableOrUnknown(
+              data['key_file_path']!, _keyFilePathMeta));
+    } else if (isInserting) {
+      context.missing(_keyFilePathMeta);
+    }
+    if (data.containsKey('key_password')) {
+      context.handle(
+          _keyPasswordMeta,
+          keyPassword.isAcceptableOrUnknown(
+              data['key_password']!, _keyPasswordMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ServerSecurityContext map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ServerSecurityContext(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      chainFilePath: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}chain_file_path'])!,
+      chainPassword: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chain_password']),
+      keyFilePath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key_file_path'])!,
+      keyPassword: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key_password']),
+    );
+  }
+
+  @override
+  $ServerSecurityContextsTable createAlias(String alias) {
+    return $ServerSecurityContextsTable(attachedDatabase, alias);
+  }
+}
+
+class ServerSecurityContext extends DataClass
+    implements Insertable<ServerSecurityContext> {
+  /// The primary key.
+  final int id;
+
+  /// The path to the chain file.
+  final String chainFilePath;
+
+  /// The password for the chain file.
+  final String? chainPassword;
+
+  /// The path to the key file.
+  final String keyFilePath;
+
+  /// The password for the key file.
+  final String? keyPassword;
+  const ServerSecurityContext(
+      {required this.id,
+      required this.chainFilePath,
+      this.chainPassword,
+      required this.keyFilePath,
+      this.keyPassword});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['chain_file_path'] = Variable<String>(chainFilePath);
+    if (!nullToAbsent || chainPassword != null) {
+      map['chain_password'] = Variable<String>(chainPassword);
+    }
+    map['key_file_path'] = Variable<String>(keyFilePath);
+    if (!nullToAbsent || keyPassword != null) {
+      map['key_password'] = Variable<String>(keyPassword);
+    }
+    return map;
+  }
+
+  ServerSecurityContextsCompanion toCompanion(bool nullToAbsent) {
+    return ServerSecurityContextsCompanion(
+      id: Value(id),
+      chainFilePath: Value(chainFilePath),
+      chainPassword: chainPassword == null && nullToAbsent
+          ? const Value.absent()
+          : Value(chainPassword),
+      keyFilePath: Value(keyFilePath),
+      keyPassword: keyPassword == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keyPassword),
+    );
+  }
+
+  factory ServerSecurityContext.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ServerSecurityContext(
+      id: serializer.fromJson<int>(json['id']),
+      chainFilePath: serializer.fromJson<String>(json['chainFilePath']),
+      chainPassword: serializer.fromJson<String?>(json['chainPassword']),
+      keyFilePath: serializer.fromJson<String>(json['keyFilePath']),
+      keyPassword: serializer.fromJson<String?>(json['keyPassword']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'chainFilePath': serializer.toJson<String>(chainFilePath),
+      'chainPassword': serializer.toJson<String?>(chainPassword),
+      'keyFilePath': serializer.toJson<String>(keyFilePath),
+      'keyPassword': serializer.toJson<String?>(keyPassword),
+    };
+  }
+
+  ServerSecurityContext copyWith(
+          {int? id,
+          String? chainFilePath,
+          Value<String?> chainPassword = const Value.absent(),
+          String? keyFilePath,
+          Value<String?> keyPassword = const Value.absent()}) =>
+      ServerSecurityContext(
+        id: id ?? this.id,
+        chainFilePath: chainFilePath ?? this.chainFilePath,
+        chainPassword:
+            chainPassword.present ? chainPassword.value : this.chainPassword,
+        keyFilePath: keyFilePath ?? this.keyFilePath,
+        keyPassword: keyPassword.present ? keyPassword.value : this.keyPassword,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ServerSecurityContext(')
+          ..write('id: $id, ')
+          ..write('chainFilePath: $chainFilePath, ')
+          ..write('chainPassword: $chainPassword, ')
+          ..write('keyFilePath: $keyFilePath, ')
+          ..write('keyPassword: $keyPassword')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, chainFilePath, chainPassword, keyFilePath, keyPassword);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ServerSecurityContext &&
+          other.id == this.id &&
+          other.chainFilePath == this.chainFilePath &&
+          other.chainPassword == this.chainPassword &&
+          other.keyFilePath == this.keyFilePath &&
+          other.keyPassword == this.keyPassword);
+}
+
+class ServerSecurityContextsCompanion
+    extends UpdateCompanion<ServerSecurityContext> {
+  final Value<int> id;
+  final Value<String> chainFilePath;
+  final Value<String?> chainPassword;
+  final Value<String> keyFilePath;
+  final Value<String?> keyPassword;
+  const ServerSecurityContextsCompanion({
+    this.id = const Value.absent(),
+    this.chainFilePath = const Value.absent(),
+    this.chainPassword = const Value.absent(),
+    this.keyFilePath = const Value.absent(),
+    this.keyPassword = const Value.absent(),
+  });
+  ServerSecurityContextsCompanion.insert({
+    this.id = const Value.absent(),
+    required String chainFilePath,
+    this.chainPassword = const Value.absent(),
+    required String keyFilePath,
+    this.keyPassword = const Value.absent(),
+  })  : chainFilePath = Value(chainFilePath),
+        keyFilePath = Value(keyFilePath);
+  static Insertable<ServerSecurityContext> custom({
+    Expression<int>? id,
+    Expression<String>? chainFilePath,
+    Expression<String>? chainPassword,
+    Expression<String>? keyFilePath,
+    Expression<String>? keyPassword,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (chainFilePath != null) 'chain_file_path': chainFilePath,
+      if (chainPassword != null) 'chain_password': chainPassword,
+      if (keyFilePath != null) 'key_file_path': keyFilePath,
+      if (keyPassword != null) 'key_password': keyPassword,
+    });
+  }
+
+  ServerSecurityContextsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? chainFilePath,
+      Value<String?>? chainPassword,
+      Value<String>? keyFilePath,
+      Value<String?>? keyPassword}) {
+    return ServerSecurityContextsCompanion(
+      id: id ?? this.id,
+      chainFilePath: chainFilePath ?? this.chainFilePath,
+      chainPassword: chainPassword ?? this.chainPassword,
+      keyFilePath: keyFilePath ?? this.keyFilePath,
+      keyPassword: keyPassword ?? this.keyPassword,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (chainFilePath.present) {
+      map['chain_file_path'] = Variable<String>(chainFilePath.value);
+    }
+    if (chainPassword.present) {
+      map['chain_password'] = Variable<String>(chainPassword.value);
+    }
+    if (keyFilePath.present) {
+      map['key_file_path'] = Variable<String>(keyFilePath.value);
+    }
+    if (keyPassword.present) {
+      map['key_password'] = Variable<String>(keyPassword.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ServerSecurityContextsCompanion(')
+          ..write('id: $id, ')
+          ..write('chainFilePath: $chainFilePath, ')
+          ..write('chainPassword: $chainPassword, ')
+          ..write('keyFilePath: $keyFilePath, ')
+          ..write('keyPassword: $keyPassword')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ServerProfilesTable extends ServerProfiles
+    with TableInfo<$ServerProfilesTable, ServerProfile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ServerProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mainMenuMusicIdMeta =
+      const VerificationMeta('mainMenuMusicId');
+  @override
+  late final GeneratedColumn<int> mainMenuMusicId = GeneratedColumn<int>(
+      'main_menu_music_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES sounds (id) ON DELETE SET NULL'));
+  static const VerificationMeta _menuSelectSoundIdMeta =
+      const VerificationMeta('menuSelectSoundId');
+  @override
+  late final GeneratedColumn<int> menuSelectSoundId = GeneratedColumn<int>(
+      'menu_select_sound_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES sounds (id) ON DELETE SET NULL'));
+  static const VerificationMeta _menuActivateSoundIdMeta =
+      const VerificationMeta('menuActivateSoundId');
+  @override
+  late final GeneratedColumn<int> menuActivateSoundId = GeneratedColumn<int>(
+      'menu_activate_sound_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES sounds (id) ON DELETE SET NULL'));
+  static const VerificationMeta _portMeta = const VerificationMeta('port');
+  @override
+  late final GeneratedColumn<int> port = GeneratedColumn<int>(
+      'port', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(8080));
+  static const VerificationMeta _hostMeta = const VerificationMeta('host');
+  @override
+  late final GeneratedColumn<String> host = GeneratedColumn<String>(
+      'host', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('0.0.0.0'));
+  static const VerificationMeta _securityContextIdMeta =
+      const VerificationMeta('securityContextId');
+  @override
+  late final GeneratedColumn<int> securityContextId = GeneratedColumn<int>(
+      'security_context_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES server_security_contexts (id) ON DELETE SET NULL'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        mainMenuMusicId,
+        menuSelectSoundId,
+        menuActivateSoundId,
+        port,
+        host,
+        securityContextId
+      ];
+  @override
+  String get aliasedName => _alias ?? 'server_profiles';
+  @override
+  String get actualTableName => 'server_profiles';
+  @override
+  VerificationContext validateIntegrity(Insertable<ServerProfile> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('main_menu_music_id')) {
+      context.handle(
+          _mainMenuMusicIdMeta,
+          mainMenuMusicId.isAcceptableOrUnknown(
+              data['main_menu_music_id']!, _mainMenuMusicIdMeta));
+    }
+    if (data.containsKey('menu_select_sound_id')) {
+      context.handle(
+          _menuSelectSoundIdMeta,
+          menuSelectSoundId.isAcceptableOrUnknown(
+              data['menu_select_sound_id']!, _menuSelectSoundIdMeta));
+    }
+    if (data.containsKey('menu_activate_sound_id')) {
+      context.handle(
+          _menuActivateSoundIdMeta,
+          menuActivateSoundId.isAcceptableOrUnknown(
+              data['menu_activate_sound_id']!, _menuActivateSoundIdMeta));
+    }
+    if (data.containsKey('port')) {
+      context.handle(
+          _portMeta, port.isAcceptableOrUnknown(data['port']!, _portMeta));
+    }
+    if (data.containsKey('host')) {
+      context.handle(
+          _hostMeta, host.isAcceptableOrUnknown(data['host']!, _hostMeta));
+    }
+    if (data.containsKey('security_context_id')) {
+      context.handle(
+          _securityContextIdMeta,
+          securityContextId.isAcceptableOrUnknown(
+              data['security_context_id']!, _securityContextIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ServerProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ServerProfile(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      mainMenuMusicId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}main_menu_music_id']),
+      menuSelectSoundId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}menu_select_sound_id']),
+      menuActivateSoundId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}menu_activate_sound_id']),
+      port: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}port'])!,
+      host: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}host'])!,
+      securityContextId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}security_context_id']),
+    );
+  }
+
+  @override
+  $ServerProfilesTable createAlias(String alias) {
+    return $ServerProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class ServerProfile extends DataClass implements Insertable<ServerProfile> {
+  /// The primary key.
+  final int id;
+
+  /// The name of something.
+  final String name;
+
+  /// The ID of the main menu music.
+  final int? mainMenuMusicId;
+
+  /// The ID of the menu select sound.
+  final int? menuSelectSoundId;
+
+  /// The ID of the menu activate sound.
+  final int? menuActivateSoundId;
+
+  /// The port to listen on.
+  final int port;
+
+  /// The host to bind on.
+  final String host;
+
+  /// The ID of the security context.
+  final int? securityContextId;
+  const ServerProfile(
+      {required this.id,
+      required this.name,
+      this.mainMenuMusicId,
+      this.menuSelectSoundId,
+      this.menuActivateSoundId,
+      required this.port,
+      required this.host,
+      this.securityContextId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || mainMenuMusicId != null) {
+      map['main_menu_music_id'] = Variable<int>(mainMenuMusicId);
+    }
+    if (!nullToAbsent || menuSelectSoundId != null) {
+      map['menu_select_sound_id'] = Variable<int>(menuSelectSoundId);
+    }
+    if (!nullToAbsent || menuActivateSoundId != null) {
+      map['menu_activate_sound_id'] = Variable<int>(menuActivateSoundId);
+    }
+    map['port'] = Variable<int>(port);
+    map['host'] = Variable<String>(host);
+    if (!nullToAbsent || securityContextId != null) {
+      map['security_context_id'] = Variable<int>(securityContextId);
+    }
+    return map;
+  }
+
+  ServerProfilesCompanion toCompanion(bool nullToAbsent) {
+    return ServerProfilesCompanion(
+      id: Value(id),
+      name: Value(name),
+      mainMenuMusicId: mainMenuMusicId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mainMenuMusicId),
+      menuSelectSoundId: menuSelectSoundId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(menuSelectSoundId),
+      menuActivateSoundId: menuActivateSoundId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(menuActivateSoundId),
+      port: Value(port),
+      host: Value(host),
+      securityContextId: securityContextId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(securityContextId),
+    );
+  }
+
+  factory ServerProfile.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ServerProfile(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      mainMenuMusicId: serializer.fromJson<int?>(json['mainMenuMusicId']),
+      menuSelectSoundId: serializer.fromJson<int?>(json['menuSelectSoundId']),
+      menuActivateSoundId:
+          serializer.fromJson<int?>(json['menuActivateSoundId']),
+      port: serializer.fromJson<int>(json['port']),
+      host: serializer.fromJson<String>(json['host']),
+      securityContextId: serializer.fromJson<int?>(json['securityContextId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'mainMenuMusicId': serializer.toJson<int?>(mainMenuMusicId),
+      'menuSelectSoundId': serializer.toJson<int?>(menuSelectSoundId),
+      'menuActivateSoundId': serializer.toJson<int?>(menuActivateSoundId),
+      'port': serializer.toJson<int>(port),
+      'host': serializer.toJson<String>(host),
+      'securityContextId': serializer.toJson<int?>(securityContextId),
+    };
+  }
+
+  ServerProfile copyWith(
+          {int? id,
+          String? name,
+          Value<int?> mainMenuMusicId = const Value.absent(),
+          Value<int?> menuSelectSoundId = const Value.absent(),
+          Value<int?> menuActivateSoundId = const Value.absent(),
+          int? port,
+          String? host,
+          Value<int?> securityContextId = const Value.absent()}) =>
+      ServerProfile(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        mainMenuMusicId: mainMenuMusicId.present
+            ? mainMenuMusicId.value
+            : this.mainMenuMusicId,
+        menuSelectSoundId: menuSelectSoundId.present
+            ? menuSelectSoundId.value
+            : this.menuSelectSoundId,
+        menuActivateSoundId: menuActivateSoundId.present
+            ? menuActivateSoundId.value
+            : this.menuActivateSoundId,
+        port: port ?? this.port,
+        host: host ?? this.host,
+        securityContextId: securityContextId.present
+            ? securityContextId.value
+            : this.securityContextId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ServerProfile(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('mainMenuMusicId: $mainMenuMusicId, ')
+          ..write('menuSelectSoundId: $menuSelectSoundId, ')
+          ..write('menuActivateSoundId: $menuActivateSoundId, ')
+          ..write('port: $port, ')
+          ..write('host: $host, ')
+          ..write('securityContextId: $securityContextId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, mainMenuMusicId, menuSelectSoundId,
+      menuActivateSoundId, port, host, securityContextId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ServerProfile &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.mainMenuMusicId == this.mainMenuMusicId &&
+          other.menuSelectSoundId == this.menuSelectSoundId &&
+          other.menuActivateSoundId == this.menuActivateSoundId &&
+          other.port == this.port &&
+          other.host == this.host &&
+          other.securityContextId == this.securityContextId);
+}
+
+class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<int?> mainMenuMusicId;
+  final Value<int?> menuSelectSoundId;
+  final Value<int?> menuActivateSoundId;
+  final Value<int> port;
+  final Value<String> host;
+  final Value<int?> securityContextId;
+  const ServerProfilesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.mainMenuMusicId = const Value.absent(),
+    this.menuSelectSoundId = const Value.absent(),
+    this.menuActivateSoundId = const Value.absent(),
+    this.port = const Value.absent(),
+    this.host = const Value.absent(),
+    this.securityContextId = const Value.absent(),
+  });
+  ServerProfilesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.mainMenuMusicId = const Value.absent(),
+    this.menuSelectSoundId = const Value.absent(),
+    this.menuActivateSoundId = const Value.absent(),
+    this.port = const Value.absent(),
+    this.host = const Value.absent(),
+    this.securityContextId = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<ServerProfile> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<int>? mainMenuMusicId,
+    Expression<int>? menuSelectSoundId,
+    Expression<int>? menuActivateSoundId,
+    Expression<int>? port,
+    Expression<String>? host,
+    Expression<int>? securityContextId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (mainMenuMusicId != null) 'main_menu_music_id': mainMenuMusicId,
+      if (menuSelectSoundId != null) 'menu_select_sound_id': menuSelectSoundId,
+      if (menuActivateSoundId != null)
+        'menu_activate_sound_id': menuActivateSoundId,
+      if (port != null) 'port': port,
+      if (host != null) 'host': host,
+      if (securityContextId != null) 'security_context_id': securityContextId,
+    });
+  }
+
+  ServerProfilesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<int?>? mainMenuMusicId,
+      Value<int?>? menuSelectSoundId,
+      Value<int?>? menuActivateSoundId,
+      Value<int>? port,
+      Value<String>? host,
+      Value<int?>? securityContextId}) {
+    return ServerProfilesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      mainMenuMusicId: mainMenuMusicId ?? this.mainMenuMusicId,
+      menuSelectSoundId: menuSelectSoundId ?? this.menuSelectSoundId,
+      menuActivateSoundId: menuActivateSoundId ?? this.menuActivateSoundId,
+      port: port ?? this.port,
+      host: host ?? this.host,
+      securityContextId: securityContextId ?? this.securityContextId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (mainMenuMusicId.present) {
+      map['main_menu_music_id'] = Variable<int>(mainMenuMusicId.value);
+    }
+    if (menuSelectSoundId.present) {
+      map['menu_select_sound_id'] = Variable<int>(menuSelectSoundId.value);
+    }
+    if (menuActivateSoundId.present) {
+      map['menu_activate_sound_id'] = Variable<int>(menuActivateSoundId.value);
+    }
+    if (port.present) {
+      map['port'] = Variable<int>(port.value);
+    }
+    if (host.present) {
+      map['host'] = Variable<String>(host.value);
+    }
+    if (securityContextId.present) {
+      map['security_context_id'] = Variable<int>(securityContextId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ServerProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('mainMenuMusicId: $mainMenuMusicId, ')
+          ..write('menuSelectSoundId: $menuSelectSoundId, ')
+          ..write('menuActivateSoundId: $menuActivateSoundId, ')
+          ..write('port: $port, ')
+          ..write('host: $host, ')
+          ..write('securityContextId: $securityContextId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$MonolithDatabase extends GeneratedDatabase {
   _$MonolithDatabase(QueryExecutor e) : super(e);
   late final $UserAccountsTable userAccounts = $UserAccountsTable(this);
   late final $CharactersTable characters = $CharactersTable(this);
   late final $SoundsTable sounds = $SoundsTable(this);
+  late final $ServerSecurityContextsTable serverSecurityContexts =
+      $ServerSecurityContextsTable(this);
+  late final $ServerProfilesTable serverProfiles = $ServerProfilesTable(this);
   late final UserAccountsDao userAccountsDao =
       UserAccountsDao(this as MonolithDatabase);
   late final CharactersDao charactersDao =
       CharactersDao(this as MonolithDatabase);
   late final SoundsDao soundsDao = SoundsDao(this as MonolithDatabase);
+  late final ServerProfilesDao serverProfilesDao =
+      ServerProfilesDao(this as MonolithDatabase);
+  late final ServerSecurityContextsDao serverSecurityContextsDao =
+      ServerSecurityContextsDao(this as MonolithDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [userAccounts, characters, sounds];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        userAccounts,
+        characters,
+        sounds,
+        serverSecurityContexts,
+        serverProfiles
+      ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
         [
@@ -709,6 +1482,34 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('characters', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('sounds',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('server_profiles', kind: UpdateKind.update),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('sounds',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('server_profiles', kind: UpdateKind.update),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('sounds',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('server_profiles', kind: UpdateKind.update),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('server_security_contexts',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('server_profiles', kind: UpdateKind.update),
             ],
           ),
         ],
