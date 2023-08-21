@@ -35,8 +35,19 @@ part 'database.g.dart';
 )
 class MonolithDatabase extends _$MonolithDatabase {
   /// Create an instance.
-  MonolithDatabase({final File? file})
-      : super(file == null ? NativeDatabase.memory() : NativeDatabase(file));
+  MonolithDatabase({
+    final File? file,
+    final bool logStatements = false,
+  }) : super(
+          file == null
+              ? NativeDatabase.memory(
+                  logStatements: logStatements,
+                )
+              : NativeDatabase(
+                  file,
+                  logStatements: logStatements,
+                ),
+        );
 
   /// Schema version.
   @override
