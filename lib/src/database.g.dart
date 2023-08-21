@@ -1454,6 +1454,7 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
   late final $ServerSecurityContextsTable serverSecurityContexts =
       $ServerSecurityContextsTable(this);
   late final $ServerProfilesTable serverProfiles = $ServerProfilesTable(this);
+  late final UtilsDao utilsDao = UtilsDao(this as MonolithDatabase);
   late final UserAccountsDao userAccountsDao =
       UserAccountsDao(this as MonolithDatabase);
   late final CharactersDao charactersDao =
