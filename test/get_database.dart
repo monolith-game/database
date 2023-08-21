@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:database/database.dart';
 import 'package:sqlite3/open.dart';
+import 'package:test/test.dart';
 
 DynamicLibrary _openOnLinux() {
   final workingDirectory = Directory.current.path;
@@ -16,5 +17,7 @@ MonolithDatabase getDatabase() {
   open
     ..overrideFor(OperatingSystem.windows, _openOnWindows)
     ..overrideFor(OperatingSystem.linux, _openOnLinux);
-  return MonolithDatabase();
+  final db = MonolithDatabase();
+  addTearDown(db.close);
+  return db;
 }
