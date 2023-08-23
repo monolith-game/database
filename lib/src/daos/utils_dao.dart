@@ -15,10 +15,34 @@ class UtilsDao extends DatabaseAccessor<MonolithDatabase> with _$UtilsDaoMixin {
 
   /// Get a server profile context from [id].
   Future<ServerProfileContext> getServerProfileContext(final int id) async {
+    final mainMenuMusicIdAlias =
+        db.alias(sounds, serverProfiles.mainMenuMusicId.name);
+    final menuSelectSoundIdAlias = db.alias(
+      sounds,
+      serverProfiles.menuSelectSoundId.name,
+    );
+    final menuActivateSoundIdAlias = db.alias(
+      sounds,
+      serverProfiles.menuActivateSoundId.name,
+    );
     final query = select(serverProfiles).join([
       leftOuterJoin(
         serverSecurityContexts,
-        serverProfiles.securityContextId.equalsExp(serverProfiles.id),
+        serverProfiles.securityContextId.equalsExp(serverSecurityContexts.id),
+      ),
+      leftOuterJoin(
+        mainMenuMusicIdAlias,
+        mainMenuMusicIdAlias.id.equalsExp(serverProfiles.mainMenuMusicId),
+      ),
+      leftOuterJoin(
+        menuSelectSoundIdAlias,
+        menuSelectSoundIdAlias.id.equalsExp(serverProfiles.menuSelectSoundId),
+      ),
+      leftOuterJoin(
+        menuActivateSoundIdAlias,
+        menuActivateSoundIdAlias.id.equalsExp(
+          serverProfiles.menuActivateSoundId,
+        ),
       ),
     ])
       ..where(serverProfiles.id.equals(id));
