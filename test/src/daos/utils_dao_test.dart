@@ -57,6 +57,28 @@ void main() {
           );
         },
       );
+
+      test(
+        '.getServerProfiles',
+        () async {
+          await database.delete(database.serverProfiles).go();
+          final profiles = [
+            for (var i = 0; i < 10; i++)
+              await serverProfilesDao.createServerProfile(
+                name: 'Profile $i',
+                host: '0.0.0.$i',
+                port: i,
+              ),
+          ];
+          final contexts = (await utilsDao.getServerProfileContexts()).toList();
+          expect(profiles.length, contexts.length);
+          for (var i = 0; i < profiles.length; i++) {
+            final profile = profiles[i];
+            final context = contexts[i];
+            expect(context.serverProfile, profile);
+          }
+        },
+      );
     },
   );
 }

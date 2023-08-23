@@ -55,4 +55,39 @@ class ServerProfilesDao extends DatabaseAccessor<MonolithDatabase>
   Future<ServerProfile> getServerProfile(final int id) =>
       (select(serverProfiles)..where((final table) => table.id.equals(id)))
           .getSingle();
+
+  /// Get a query that joins all the remote rows.
+  JoinedSelectStatement<HasResultSet, dynamic> getJoinedQuery() {
+    final mainMenuMusicIdAlias =
+        db.alias(sounds, serverProfiles.mainMenuMusicId.name);
+    final menuSelectSoundIdAlias = db.alias(
+      sounds,
+      serverProfiles.menuSelectSoundId.name,
+    );
+    final menuActivateSoundIdAlias = db.alias(
+      sounds,
+      serverProfiles.menuActivateSoundId.name,
+    );
+    final query = select(serverProfiles).join([
+      leftOuterJoin(
+        serverSecurityContexts,
+        serverProfiles.securityContextId.equalsExp(serverSecurityContexts.id),
+      ),
+      leftOuterJoin(
+        mainMenuMusicIdAlias,
+        mainMenuMusicIdAlias.id.equalsExp(serverProfiles.mainMenuMusicId),
+      ),
+      leftOuterJoin(
+        menuSelectSoundIdAlias,
+        menuSelectSoundIdAlias.id.equalsExp(serverProfiles.menuSelectSoundId),
+      ),
+      leftOuterJoin(
+        menuActivateSoundIdAlias,
+        menuActivateSoundIdAlias.id.equalsExp(
+          serverProfiles.menuActivateSoundId,
+        ),
+      ),
+    ]);
+    return query;
+  }
 }
