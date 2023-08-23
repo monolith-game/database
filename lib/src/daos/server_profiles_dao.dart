@@ -18,6 +18,9 @@ class ServerProfilesDao extends DatabaseAccessor<MonolithDatabase>
     required final String host,
     required final int port,
     final ServerSecurityContext? securityContext,
+    final Sound? mainMenuMusic,
+    final Sound? menuSelectSound,
+    final Sound? menuActivateSound,
   }) =>
       into(serverProfiles).insertReturning(
         ServerProfilesCompanion(
@@ -25,6 +28,9 @@ class ServerProfilesDao extends DatabaseAccessor<MonolithDatabase>
           name: Value(name),
           port: Value(port),
           securityContextId: Value(securityContext?.id),
+          mainMenuMusicId: Value(mainMenuMusic?.id),
+          menuSelectSoundId: Value(menuSelectSound?.id),
+          menuActivateSoundId: Value(menuActivateSound?.id),
         ),
       );
 
