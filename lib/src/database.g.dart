@@ -2180,8 +2180,50 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES zones (id) ON DELETE RESTRICT'));
+  static const VerificationMeta _maxXMeta = const VerificationMeta('maxX');
   @override
-  List<GeneratedColumn> get $columns => [id, uuid, name, ambianceId, zoneId];
+  late final GeneratedColumn<int> maxX = GeneratedColumn<int>(
+      'max_x', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(100));
+  static const VerificationMeta _maxYMeta = const VerificationMeta('maxY');
+  @override
+  late final GeneratedColumn<int> maxY = GeneratedColumn<int>(
+      'max_y', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(100));
+  static const VerificationMeta _wallSoundIdMeta =
+      const VerificationMeta('wallSoundId');
+  @override
+  late final GeneratedColumn<int> wallSoundId = GeneratedColumn<int>(
+      'wall_sound_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES sounds (id) ON DELETE SET NULL'));
+  static const VerificationMeta _defaultFootstepSoundIdMeta =
+      const VerificationMeta('defaultFootstepSoundId');
+  @override
+  late final GeneratedColumn<int> defaultFootstepSoundId = GeneratedColumn<int>(
+      'default_footstep_sound_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES sounds (id) ON DELETE SET NULL'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        uuid,
+        name,
+        ambianceId,
+        zoneId,
+        maxX,
+        maxY,
+        wallSoundId,
+        defaultFootstepSoundId
+      ];
   @override
   String get aliasedName => _alias ?? 'rooms';
   @override
@@ -2216,6 +2258,26 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
     } else if (isInserting) {
       context.missing(_zoneIdMeta);
     }
+    if (data.containsKey('max_x')) {
+      context.handle(
+          _maxXMeta, maxX.isAcceptableOrUnknown(data['max_x']!, _maxXMeta));
+    }
+    if (data.containsKey('max_y')) {
+      context.handle(
+          _maxYMeta, maxY.isAcceptableOrUnknown(data['max_y']!, _maxYMeta));
+    }
+    if (data.containsKey('wall_sound_id')) {
+      context.handle(
+          _wallSoundIdMeta,
+          wallSoundId.isAcceptableOrUnknown(
+              data['wall_sound_id']!, _wallSoundIdMeta));
+    }
+    if (data.containsKey('default_footstep_sound_id')) {
+      context.handle(
+          _defaultFootstepSoundIdMeta,
+          defaultFootstepSoundId.isAcceptableOrUnknown(
+              data['default_footstep_sound_id']!, _defaultFootstepSoundIdMeta));
+    }
     return context;
   }
 
@@ -2235,6 +2297,15 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
           .read(DriftSqlType.int, data['${effectivePrefix}ambiance_id']),
       zoneId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}zone_id'])!,
+      maxX: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}max_x'])!,
+      maxY: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}max_y'])!,
+      wallSoundId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}wall_sound_id']),
+      defaultFootstepSoundId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}default_footstep_sound_id']),
     );
   }
 
@@ -2259,12 +2330,28 @@ class Room extends DataClass implements Insertable<Room> {
 
   /// The ID of the zone this room belongs to.
   final int zoneId;
+
+  /// The maximum x coordinate.
+  final int maxX;
+
+  /// The maximum y coordinate.
+  final int maxY;
+
+  /// The ID of the wall sound.
+  final int? wallSoundId;
+
+  /// The ID of the default footstep sound.
+  final int? defaultFootstepSoundId;
   const Room(
       {required this.id,
       required this.uuid,
       required this.name,
       this.ambianceId,
-      required this.zoneId});
+      required this.zoneId,
+      required this.maxX,
+      required this.maxY,
+      this.wallSoundId,
+      this.defaultFootstepSoundId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2275,6 +2362,14 @@ class Room extends DataClass implements Insertable<Room> {
       map['ambiance_id'] = Variable<int>(ambianceId);
     }
     map['zone_id'] = Variable<int>(zoneId);
+    map['max_x'] = Variable<int>(maxX);
+    map['max_y'] = Variable<int>(maxY);
+    if (!nullToAbsent || wallSoundId != null) {
+      map['wall_sound_id'] = Variable<int>(wallSoundId);
+    }
+    if (!nullToAbsent || defaultFootstepSoundId != null) {
+      map['default_footstep_sound_id'] = Variable<int>(defaultFootstepSoundId);
+    }
     return map;
   }
 
@@ -2287,6 +2382,14 @@ class Room extends DataClass implements Insertable<Room> {
           ? const Value.absent()
           : Value(ambianceId),
       zoneId: Value(zoneId),
+      maxX: Value(maxX),
+      maxY: Value(maxY),
+      wallSoundId: wallSoundId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wallSoundId),
+      defaultFootstepSoundId: defaultFootstepSoundId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultFootstepSoundId),
     );
   }
 
@@ -2299,6 +2402,11 @@ class Room extends DataClass implements Insertable<Room> {
       name: serializer.fromJson<String>(json['name']),
       ambianceId: serializer.fromJson<int?>(json['ambianceId']),
       zoneId: serializer.fromJson<int>(json['zoneId']),
+      maxX: serializer.fromJson<int>(json['maxX']),
+      maxY: serializer.fromJson<int>(json['maxY']),
+      wallSoundId: serializer.fromJson<int?>(json['wallSoundId']),
+      defaultFootstepSoundId:
+          serializer.fromJson<int?>(json['defaultFootstepSoundId']),
     );
   }
   @override
@@ -2310,6 +2418,10 @@ class Room extends DataClass implements Insertable<Room> {
       'name': serializer.toJson<String>(name),
       'ambianceId': serializer.toJson<int?>(ambianceId),
       'zoneId': serializer.toJson<int>(zoneId),
+      'maxX': serializer.toJson<int>(maxX),
+      'maxY': serializer.toJson<int>(maxY),
+      'wallSoundId': serializer.toJson<int?>(wallSoundId),
+      'defaultFootstepSoundId': serializer.toJson<int?>(defaultFootstepSoundId),
     };
   }
 
@@ -2318,13 +2430,23 @@ class Room extends DataClass implements Insertable<Room> {
           String? uuid,
           String? name,
           Value<int?> ambianceId = const Value.absent(),
-          int? zoneId}) =>
+          int? zoneId,
+          int? maxX,
+          int? maxY,
+          Value<int?> wallSoundId = const Value.absent(),
+          Value<int?> defaultFootstepSoundId = const Value.absent()}) =>
       Room(
         id: id ?? this.id,
         uuid: uuid ?? this.uuid,
         name: name ?? this.name,
         ambianceId: ambianceId.present ? ambianceId.value : this.ambianceId,
         zoneId: zoneId ?? this.zoneId,
+        maxX: maxX ?? this.maxX,
+        maxY: maxY ?? this.maxY,
+        wallSoundId: wallSoundId.present ? wallSoundId.value : this.wallSoundId,
+        defaultFootstepSoundId: defaultFootstepSoundId.present
+            ? defaultFootstepSoundId.value
+            : this.defaultFootstepSoundId,
       );
   @override
   String toString() {
@@ -2333,13 +2455,18 @@ class Room extends DataClass implements Insertable<Room> {
           ..write('uuid: $uuid, ')
           ..write('name: $name, ')
           ..write('ambianceId: $ambianceId, ')
-          ..write('zoneId: $zoneId')
+          ..write('zoneId: $zoneId, ')
+          ..write('maxX: $maxX, ')
+          ..write('maxY: $maxY, ')
+          ..write('wallSoundId: $wallSoundId, ')
+          ..write('defaultFootstepSoundId: $defaultFootstepSoundId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, uuid, name, ambianceId, zoneId);
+  int get hashCode => Object.hash(id, uuid, name, ambianceId, zoneId, maxX,
+      maxY, wallSoundId, defaultFootstepSoundId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2348,7 +2475,11 @@ class Room extends DataClass implements Insertable<Room> {
           other.uuid == this.uuid &&
           other.name == this.name &&
           other.ambianceId == this.ambianceId &&
-          other.zoneId == this.zoneId);
+          other.zoneId == this.zoneId &&
+          other.maxX == this.maxX &&
+          other.maxY == this.maxY &&
+          other.wallSoundId == this.wallSoundId &&
+          other.defaultFootstepSoundId == this.defaultFootstepSoundId);
 }
 
 class RoomsCompanion extends UpdateCompanion<Room> {
@@ -2357,12 +2488,20 @@ class RoomsCompanion extends UpdateCompanion<Room> {
   final Value<String> name;
   final Value<int?> ambianceId;
   final Value<int> zoneId;
+  final Value<int> maxX;
+  final Value<int> maxY;
+  final Value<int?> wallSoundId;
+  final Value<int?> defaultFootstepSoundId;
   const RoomsCompanion({
     this.id = const Value.absent(),
     this.uuid = const Value.absent(),
     this.name = const Value.absent(),
     this.ambianceId = const Value.absent(),
     this.zoneId = const Value.absent(),
+    this.maxX = const Value.absent(),
+    this.maxY = const Value.absent(),
+    this.wallSoundId = const Value.absent(),
+    this.defaultFootstepSoundId = const Value.absent(),
   });
   RoomsCompanion.insert({
     this.id = const Value.absent(),
@@ -2370,6 +2509,10 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     required String name,
     this.ambianceId = const Value.absent(),
     required int zoneId,
+    this.maxX = const Value.absent(),
+    this.maxY = const Value.absent(),
+    this.wallSoundId = const Value.absent(),
+    this.defaultFootstepSoundId = const Value.absent(),
   })  : name = Value(name),
         zoneId = Value(zoneId);
   static Insertable<Room> custom({
@@ -2378,6 +2521,10 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     Expression<String>? name,
     Expression<int>? ambianceId,
     Expression<int>? zoneId,
+    Expression<int>? maxX,
+    Expression<int>? maxY,
+    Expression<int>? wallSoundId,
+    Expression<int>? defaultFootstepSoundId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2385,6 +2532,11 @@ class RoomsCompanion extends UpdateCompanion<Room> {
       if (name != null) 'name': name,
       if (ambianceId != null) 'ambiance_id': ambianceId,
       if (zoneId != null) 'zone_id': zoneId,
+      if (maxX != null) 'max_x': maxX,
+      if (maxY != null) 'max_y': maxY,
+      if (wallSoundId != null) 'wall_sound_id': wallSoundId,
+      if (defaultFootstepSoundId != null)
+        'default_footstep_sound_id': defaultFootstepSoundId,
     });
   }
 
@@ -2393,13 +2545,22 @@ class RoomsCompanion extends UpdateCompanion<Room> {
       Value<String>? uuid,
       Value<String>? name,
       Value<int?>? ambianceId,
-      Value<int>? zoneId}) {
+      Value<int>? zoneId,
+      Value<int>? maxX,
+      Value<int>? maxY,
+      Value<int?>? wallSoundId,
+      Value<int?>? defaultFootstepSoundId}) {
     return RoomsCompanion(
       id: id ?? this.id,
       uuid: uuid ?? this.uuid,
       name: name ?? this.name,
       ambianceId: ambianceId ?? this.ambianceId,
       zoneId: zoneId ?? this.zoneId,
+      maxX: maxX ?? this.maxX,
+      maxY: maxY ?? this.maxY,
+      wallSoundId: wallSoundId ?? this.wallSoundId,
+      defaultFootstepSoundId:
+          defaultFootstepSoundId ?? this.defaultFootstepSoundId,
     );
   }
 
@@ -2421,6 +2582,19 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     if (zoneId.present) {
       map['zone_id'] = Variable<int>(zoneId.value);
     }
+    if (maxX.present) {
+      map['max_x'] = Variable<int>(maxX.value);
+    }
+    if (maxY.present) {
+      map['max_y'] = Variable<int>(maxY.value);
+    }
+    if (wallSoundId.present) {
+      map['wall_sound_id'] = Variable<int>(wallSoundId.value);
+    }
+    if (defaultFootstepSoundId.present) {
+      map['default_footstep_sound_id'] =
+          Variable<int>(defaultFootstepSoundId.value);
+    }
     return map;
   }
 
@@ -2431,7 +2605,11 @@ class RoomsCompanion extends UpdateCompanion<Room> {
           ..write('uuid: $uuid, ')
           ..write('name: $name, ')
           ..write('ambianceId: $ambianceId, ')
-          ..write('zoneId: $zoneId')
+          ..write('zoneId: $zoneId, ')
+          ..write('maxX: $maxX, ')
+          ..write('maxY: $maxY, ')
+          ..write('wallSoundId: $wallSoundId, ')
+          ..write('defaultFootstepSoundId: $defaultFootstepSoundId')
           ..write(')'))
         .toString();
   }
@@ -2532,6 +2710,20 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('zone_builders', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('sounds',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('rooms', kind: UpdateKind.update),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('sounds',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('rooms', kind: UpdateKind.update),
             ],
           ),
           WritePropagation(
