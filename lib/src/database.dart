@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 
 import '../constants.dart';
+import 'daos/rooms/rooms_dao.dart';
 import 'daos/rooms/zone_builders_dao.dart';
 import 'daos/rooms/zones_dao.dart';
 import 'daos/server_profiles/server_profiles_dao.dart';
@@ -11,6 +12,7 @@ import 'daos/server_profiles/server_security_contexts_dao.dart';
 import 'daos/sounds/sounds_dao.dart';
 import 'daos/user_accounts/characters_dao.dart';
 import 'daos/user_accounts/user_accounts_dao.dart';
+import 'tables/rooms/rooms.dart';
 import 'tables/rooms/zone_builders.dart';
 import 'tables/rooms/zones.dart';
 import 'tables/server_profiles/server_profiles.dart';
@@ -31,6 +33,7 @@ part 'database.g.dart';
     ServerSecurityContexts,
     Zones,
     ZoneBuilders,
+    Rooms,
   ],
   daos: [
     UserAccountsDao,
@@ -40,6 +43,7 @@ part 'database.g.dart';
     ServerSecurityContextsDao,
     ZonesDao,
     ZoneBuildersDao,
+    RoomsDao,
   ],
 )
 class MonolithDatabase extends _$MonolithDatabase {

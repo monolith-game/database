@@ -2135,6 +2135,308 @@ class ZoneBuildersCompanion extends UpdateCompanion<ZoneBuilder> {
   }
 }
 
+class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RoomsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _uuidMeta = const VerificationMeta('uuid');
+  @override
+  late final GeneratedColumn<String> uuid = GeneratedColumn<String>(
+      'uuid', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      clientDefault: uuidGenerator.v4);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ambianceIdMeta =
+      const VerificationMeta('ambianceId');
+  @override
+  late final GeneratedColumn<int> ambianceId = GeneratedColumn<int>(
+      'ambiance_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES sounds (id) ON DELETE SET NULL'));
+  static const VerificationMeta _zoneIdMeta = const VerificationMeta('zoneId');
+  @override
+  late final GeneratedColumn<int> zoneId = GeneratedColumn<int>(
+      'zone_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES zones (id) ON DELETE RESTRICT'));
+  @override
+  List<GeneratedColumn> get $columns => [id, uuid, name, ambianceId, zoneId];
+  @override
+  String get aliasedName => _alias ?? 'rooms';
+  @override
+  String get actualTableName => 'rooms';
+  @override
+  VerificationContext validateIntegrity(Insertable<Room> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uuid')) {
+      context.handle(
+          _uuidMeta, uuid.isAcceptableOrUnknown(data['uuid']!, _uuidMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('ambiance_id')) {
+      context.handle(
+          _ambianceIdMeta,
+          ambianceId.isAcceptableOrUnknown(
+              data['ambiance_id']!, _ambianceIdMeta));
+    }
+    if (data.containsKey('zone_id')) {
+      context.handle(_zoneIdMeta,
+          zoneId.isAcceptableOrUnknown(data['zone_id']!, _zoneIdMeta));
+    } else if (isInserting) {
+      context.missing(_zoneIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Room map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Room(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      uuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uuid'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      ambianceId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}ambiance_id']),
+      zoneId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}zone_id'])!,
+    );
+  }
+
+  @override
+  $RoomsTable createAlias(String alias) {
+    return $RoomsTable(attachedDatabase, alias);
+  }
+}
+
+class Room extends DataClass implements Insertable<Room> {
+  /// The primary key.
+  final int id;
+
+  /// A unique UUID to remove the reliance on sequential IDs in the API.
+  final String uuid;
+
+  /// The name of something.
+  final String name;
+
+  /// The ID of an ambiance.
+  final int? ambianceId;
+
+  /// The ID of the zone this room belongs to.
+  final int zoneId;
+  const Room(
+      {required this.id,
+      required this.uuid,
+      required this.name,
+      this.ambianceId,
+      required this.zoneId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['uuid'] = Variable<String>(uuid);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || ambianceId != null) {
+      map['ambiance_id'] = Variable<int>(ambianceId);
+    }
+    map['zone_id'] = Variable<int>(zoneId);
+    return map;
+  }
+
+  RoomsCompanion toCompanion(bool nullToAbsent) {
+    return RoomsCompanion(
+      id: Value(id),
+      uuid: Value(uuid),
+      name: Value(name),
+      ambianceId: ambianceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ambianceId),
+      zoneId: Value(zoneId),
+    );
+  }
+
+  factory Room.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Room(
+      id: serializer.fromJson<int>(json['id']),
+      uuid: serializer.fromJson<String>(json['uuid']),
+      name: serializer.fromJson<String>(json['name']),
+      ambianceId: serializer.fromJson<int?>(json['ambianceId']),
+      zoneId: serializer.fromJson<int>(json['zoneId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'uuid': serializer.toJson<String>(uuid),
+      'name': serializer.toJson<String>(name),
+      'ambianceId': serializer.toJson<int?>(ambianceId),
+      'zoneId': serializer.toJson<int>(zoneId),
+    };
+  }
+
+  Room copyWith(
+          {int? id,
+          String? uuid,
+          String? name,
+          Value<int?> ambianceId = const Value.absent(),
+          int? zoneId}) =>
+      Room(
+        id: id ?? this.id,
+        uuid: uuid ?? this.uuid,
+        name: name ?? this.name,
+        ambianceId: ambianceId.present ? ambianceId.value : this.ambianceId,
+        zoneId: zoneId ?? this.zoneId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Room(')
+          ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
+          ..write('name: $name, ')
+          ..write('ambianceId: $ambianceId, ')
+          ..write('zoneId: $zoneId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, uuid, name, ambianceId, zoneId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Room &&
+          other.id == this.id &&
+          other.uuid == this.uuid &&
+          other.name == this.name &&
+          other.ambianceId == this.ambianceId &&
+          other.zoneId == this.zoneId);
+}
+
+class RoomsCompanion extends UpdateCompanion<Room> {
+  final Value<int> id;
+  final Value<String> uuid;
+  final Value<String> name;
+  final Value<int?> ambianceId;
+  final Value<int> zoneId;
+  const RoomsCompanion({
+    this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
+    this.name = const Value.absent(),
+    this.ambianceId = const Value.absent(),
+    this.zoneId = const Value.absent(),
+  });
+  RoomsCompanion.insert({
+    this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
+    required String name,
+    this.ambianceId = const Value.absent(),
+    required int zoneId,
+  })  : name = Value(name),
+        zoneId = Value(zoneId);
+  static Insertable<Room> custom({
+    Expression<int>? id,
+    Expression<String>? uuid,
+    Expression<String>? name,
+    Expression<int>? ambianceId,
+    Expression<int>? zoneId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (uuid != null) 'uuid': uuid,
+      if (name != null) 'name': name,
+      if (ambianceId != null) 'ambiance_id': ambianceId,
+      if (zoneId != null) 'zone_id': zoneId,
+    });
+  }
+
+  RoomsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? uuid,
+      Value<String>? name,
+      Value<int?>? ambianceId,
+      Value<int>? zoneId}) {
+    return RoomsCompanion(
+      id: id ?? this.id,
+      uuid: uuid ?? this.uuid,
+      name: name ?? this.name,
+      ambianceId: ambianceId ?? this.ambianceId,
+      zoneId: zoneId ?? this.zoneId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (uuid.present) {
+      map['uuid'] = Variable<String>(uuid.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (ambianceId.present) {
+      map['ambiance_id'] = Variable<int>(ambianceId.value);
+    }
+    if (zoneId.present) {
+      map['zone_id'] = Variable<int>(zoneId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoomsCompanion(')
+          ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
+          ..write('name: $name, ')
+          ..write('ambianceId: $ambianceId, ')
+          ..write('zoneId: $zoneId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$MonolithDatabase extends GeneratedDatabase {
   _$MonolithDatabase(QueryExecutor e) : super(e);
   late final $UserAccountsTable userAccounts = $UserAccountsTable(this);
@@ -2145,6 +2447,7 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
   late final $ServerProfilesTable serverProfiles = $ServerProfilesTable(this);
   late final $ZonesTable zones = $ZonesTable(this);
   late final $ZoneBuildersTable zoneBuilders = $ZoneBuildersTable(this);
+  late final $RoomsTable rooms = $RoomsTable(this);
   late final UserAccountsDao userAccountsDao =
       UserAccountsDao(this as MonolithDatabase);
   late final CharactersDao charactersDao =
@@ -2157,6 +2460,7 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
   late final ZonesDao zonesDao = ZonesDao(this as MonolithDatabase);
   late final ZoneBuildersDao zoneBuildersDao =
       ZoneBuildersDao(this as MonolithDatabase);
+  late final RoomsDao roomsDao = RoomsDao(this as MonolithDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2168,7 +2472,8 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
         serverSecurityContexts,
         serverProfiles,
         zones,
-        zoneBuilders
+        zoneBuilders,
+        rooms
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -2227,6 +2532,13 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('zone_builders', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('sounds',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('rooms', kind: UpdateKind.update),
             ],
           ),
         ],
