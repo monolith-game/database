@@ -8,7 +8,6 @@ import 'daos/server_profiles_dao.dart';
 import 'daos/server_security_contexts_dao.dart';
 import 'daos/sounds_dao.dart';
 import 'daos/user_accounts_dao.dart';
-import 'daos/utils_dao.dart';
 import 'tables/characters.dart';
 import 'tables/server_profiles.dart';
 import 'tables/server_security_contexts.dart';
@@ -27,7 +26,6 @@ part 'database.g.dart';
     ServerSecurityContexts,
   ],
   daos: [
-    UtilsDao,
     UserAccountsDao,
     CharactersDao,
     SoundsDao,

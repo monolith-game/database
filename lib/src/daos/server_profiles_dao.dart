@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../contexts/server_profile_context.dart';
 import '../database.dart';
 import '../tables/server_profiles.dart';
 
@@ -89,5 +90,22 @@ class ServerProfilesDao extends DatabaseAccessor<MonolithDatabase>
       ),
     ]);
     return query;
+  }
+
+  /// Get a server profile context from [id].
+  Future<ServerProfileContext> getServerProfileContext(final int id) async {
+    final query = db.serverProfilesDao.getJoinedQuery()
+      ..where(serverProfiles.id.equals(id));
+    final result = await query.getSingle();
+    return ServerProfileContext.fromResults(db, result);
+  }
+
+  /// Get all server profiles.
+  Future<Iterable<ServerProfileContext>> getServerProfileContexts() async {
+    final query = db.serverProfilesDao.getJoinedQuery();
+    final results = await query.get();
+    return results.map(
+      (final e) => ServerProfileContext.fromResults(db, e),
+    );
   }
 }
