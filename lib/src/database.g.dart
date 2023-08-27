@@ -1873,6 +1873,268 @@ class ZonesCompanion extends UpdateCompanion<Zone> {
   }
 }
 
+class $ZoneBuildersTable extends ZoneBuilders
+    with TableInfo<$ZoneBuildersTable, ZoneBuilder> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ZoneBuildersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _uuidMeta = const VerificationMeta('uuid');
+  @override
+  late final GeneratedColumn<String> uuid = GeneratedColumn<String>(
+      'uuid', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      clientDefault: uuidGenerator.v4);
+  static const VerificationMeta _zoneIdMeta = const VerificationMeta('zoneId');
+  @override
+  late final GeneratedColumn<int> zoneId = GeneratedColumn<int>(
+      'zone_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES zones (id) ON DELETE CASCADE'));
+  static const VerificationMeta _characterIdMeta =
+      const VerificationMeta('characterId');
+  @override
+  late final GeneratedColumn<int> characterId = GeneratedColumn<int>(
+      'character_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES characters (id) ON DELETE CASCADE'));
+  @override
+  List<GeneratedColumn> get $columns => [id, uuid, zoneId, characterId];
+  @override
+  String get aliasedName => _alias ?? 'zone_builders';
+  @override
+  String get actualTableName => 'zone_builders';
+  @override
+  VerificationContext validateIntegrity(Insertable<ZoneBuilder> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uuid')) {
+      context.handle(
+          _uuidMeta, uuid.isAcceptableOrUnknown(data['uuid']!, _uuidMeta));
+    }
+    if (data.containsKey('zone_id')) {
+      context.handle(_zoneIdMeta,
+          zoneId.isAcceptableOrUnknown(data['zone_id']!, _zoneIdMeta));
+    } else if (isInserting) {
+      context.missing(_zoneIdMeta);
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+          _characterIdMeta,
+          characterId.isAcceptableOrUnknown(
+              data['character_id']!, _characterIdMeta));
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ZoneBuilder map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ZoneBuilder(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      uuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uuid'])!,
+      zoneId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}zone_id'])!,
+      characterId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}character_id'])!,
+    );
+  }
+
+  @override
+  $ZoneBuildersTable createAlias(String alias) {
+    return $ZoneBuildersTable(attachedDatabase, alias);
+  }
+}
+
+class ZoneBuilder extends DataClass implements Insertable<ZoneBuilder> {
+  /// The primary key.
+  final int id;
+
+  /// A unique UUID to remove the reliance on sequential IDs in the API.
+  final String uuid;
+
+  /// The ID of the zone this builder references.
+  final int zoneId;
+
+  /// The ID of the character who can build on this zone.
+  final int characterId;
+  const ZoneBuilder(
+      {required this.id,
+      required this.uuid,
+      required this.zoneId,
+      required this.characterId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['uuid'] = Variable<String>(uuid);
+    map['zone_id'] = Variable<int>(zoneId);
+    map['character_id'] = Variable<int>(characterId);
+    return map;
+  }
+
+  ZoneBuildersCompanion toCompanion(bool nullToAbsent) {
+    return ZoneBuildersCompanion(
+      id: Value(id),
+      uuid: Value(uuid),
+      zoneId: Value(zoneId),
+      characterId: Value(characterId),
+    );
+  }
+
+  factory ZoneBuilder.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ZoneBuilder(
+      id: serializer.fromJson<int>(json['id']),
+      uuid: serializer.fromJson<String>(json['uuid']),
+      zoneId: serializer.fromJson<int>(json['zoneId']),
+      characterId: serializer.fromJson<int>(json['characterId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'uuid': serializer.toJson<String>(uuid),
+      'zoneId': serializer.toJson<int>(zoneId),
+      'characterId': serializer.toJson<int>(characterId),
+    };
+  }
+
+  ZoneBuilder copyWith(
+          {int? id, String? uuid, int? zoneId, int? characterId}) =>
+      ZoneBuilder(
+        id: id ?? this.id,
+        uuid: uuid ?? this.uuid,
+        zoneId: zoneId ?? this.zoneId,
+        characterId: characterId ?? this.characterId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ZoneBuilder(')
+          ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
+          ..write('zoneId: $zoneId, ')
+          ..write('characterId: $characterId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, uuid, zoneId, characterId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ZoneBuilder &&
+          other.id == this.id &&
+          other.uuid == this.uuid &&
+          other.zoneId == this.zoneId &&
+          other.characterId == this.characterId);
+}
+
+class ZoneBuildersCompanion extends UpdateCompanion<ZoneBuilder> {
+  final Value<int> id;
+  final Value<String> uuid;
+  final Value<int> zoneId;
+  final Value<int> characterId;
+  const ZoneBuildersCompanion({
+    this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
+    this.zoneId = const Value.absent(),
+    this.characterId = const Value.absent(),
+  });
+  ZoneBuildersCompanion.insert({
+    this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
+    required int zoneId,
+    required int characterId,
+  })  : zoneId = Value(zoneId),
+        characterId = Value(characterId);
+  static Insertable<ZoneBuilder> custom({
+    Expression<int>? id,
+    Expression<String>? uuid,
+    Expression<int>? zoneId,
+    Expression<int>? characterId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (uuid != null) 'uuid': uuid,
+      if (zoneId != null) 'zone_id': zoneId,
+      if (characterId != null) 'character_id': characterId,
+    });
+  }
+
+  ZoneBuildersCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? uuid,
+      Value<int>? zoneId,
+      Value<int>? characterId}) {
+    return ZoneBuildersCompanion(
+      id: id ?? this.id,
+      uuid: uuid ?? this.uuid,
+      zoneId: zoneId ?? this.zoneId,
+      characterId: characterId ?? this.characterId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (uuid.present) {
+      map['uuid'] = Variable<String>(uuid.value);
+    }
+    if (zoneId.present) {
+      map['zone_id'] = Variable<int>(zoneId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<int>(characterId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ZoneBuildersCompanion(')
+          ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
+          ..write('zoneId: $zoneId, ')
+          ..write('characterId: $characterId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$MonolithDatabase extends GeneratedDatabase {
   _$MonolithDatabase(QueryExecutor e) : super(e);
   late final $UserAccountsTable userAccounts = $UserAccountsTable(this);
@@ -1882,6 +2144,7 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
       $ServerSecurityContextsTable(this);
   late final $ServerProfilesTable serverProfiles = $ServerProfilesTable(this);
   late final $ZonesTable zones = $ZonesTable(this);
+  late final $ZoneBuildersTable zoneBuilders = $ZoneBuildersTable(this);
   late final UserAccountsDao userAccountsDao =
       UserAccountsDao(this as MonolithDatabase);
   late final CharactersDao charactersDao =
@@ -1891,6 +2154,9 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
       ServerProfilesDao(this as MonolithDatabase);
   late final ServerSecurityContextsDao serverSecurityContextsDao =
       ServerSecurityContextsDao(this as MonolithDatabase);
+  late final ZonesDao zonesDao = ZonesDao(this as MonolithDatabase);
+  late final ZoneBuildersDao zoneBuildersDao =
+      ZoneBuildersDao(this as MonolithDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1901,7 +2167,8 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
         sounds,
         serverSecurityContexts,
         serverProfiles,
-        zones
+        zones,
+        zoneBuilders
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -1946,6 +2213,20 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('zones', kind: UpdateKind.update),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('zones',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('zone_builders', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('characters',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('zone_builders', kind: UpdateKind.delete),
             ],
           ),
         ],
