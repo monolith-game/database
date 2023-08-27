@@ -17,5 +17,6 @@ mixin NameMixin on Table {
 /// Add a [uuid] column.
 mixin UuidMixin on Table {
   /// A unique UUID to remove the reliance on sequential IDs in the API.
-  TextColumn get uuid => text().clientDefault(uuidGenerator.v4)();
+  TextColumn get uuid =>
+      text().withLength(min: 36, max: 36).clientDefault(uuidGenerator.v4)();
 }

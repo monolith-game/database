@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 
+import '../constants.dart';
 import 'daos/characters_dao.dart';
 import 'daos/server_profiles_dao.dart';
 import 'daos/server_security_contexts_dao.dart';

@@ -5,7 +5,7 @@ import 'server_security_contexts.dart';
 import 'sounds.dart';
 
 /// The server profiles table.
-class ServerProfiles extends Table with IdMixin, NameMixin {
+class ServerProfiles extends Table with IdMixin, NameMixin, UuidMixin {
   /// The ID of the main menu music.
   IntColumn get mainMenuMusicId => integer()
       .references(Sounds, #id, onDelete: KeyAction.setNull)

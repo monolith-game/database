@@ -18,6 +18,15 @@ class $UserAccountsTable extends UserAccounts
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _uuidMeta = const VerificationMeta('uuid');
+  @override
+  late final GeneratedColumn<String> uuid = GeneratedColumn<String>(
+      'uuid', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      clientDefault: uuidGenerator.v4);
   static const VerificationMeta _usernameMeta =
       const VerificationMeta('username');
   @override
@@ -31,7 +40,7 @@ class $UserAccountsTable extends UserAccounts
       'password_hash', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, username, passwordHash];
+  List<GeneratedColumn> get $columns => [id, uuid, username, passwordHash];
   @override
   String get aliasedName => _alias ?? 'user_accounts';
   @override
@@ -43,6 +52,10 @@ class $UserAccountsTable extends UserAccounts
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uuid')) {
+      context.handle(
+          _uuidMeta, uuid.isAcceptableOrUnknown(data['uuid']!, _uuidMeta));
     }
     if (data.containsKey('username')) {
       context.handle(_usernameMeta,
@@ -69,6 +82,8 @@ class $UserAccountsTable extends UserAccounts
     return UserAccount(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      uuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uuid'])!,
       username: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}username'])!,
       passwordHash: attachedDatabase.typeMapping
@@ -86,17 +101,24 @@ class UserAccount extends DataClass implements Insertable<UserAccount> {
   /// The primary key.
   final int id;
 
+  /// A unique UUID to remove the reliance on sequential IDs in the API.
+  final String uuid;
+
   /// The username of this account.
   final String username;
 
   /// THe password hash.
   final String passwordHash;
   const UserAccount(
-      {required this.id, required this.username, required this.passwordHash});
+      {required this.id,
+      required this.uuid,
+      required this.username,
+      required this.passwordHash});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['uuid'] = Variable<String>(uuid);
     map['username'] = Variable<String>(username);
     map['password_hash'] = Variable<String>(passwordHash);
     return map;
@@ -105,6 +127,7 @@ class UserAccount extends DataClass implements Insertable<UserAccount> {
   UserAccountsCompanion toCompanion(bool nullToAbsent) {
     return UserAccountsCompanion(
       id: Value(id),
+      uuid: Value(uuid),
       username: Value(username),
       passwordHash: Value(passwordHash),
     );
@@ -115,6 +138,7 @@ class UserAccount extends DataClass implements Insertable<UserAccount> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return UserAccount(
       id: serializer.fromJson<int>(json['id']),
+      uuid: serializer.fromJson<String>(json['uuid']),
       username: serializer.fromJson<String>(json['username']),
       passwordHash: serializer.fromJson<String>(json['passwordHash']),
     );
@@ -124,14 +148,17 @@ class UserAccount extends DataClass implements Insertable<UserAccount> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uuid': serializer.toJson<String>(uuid),
       'username': serializer.toJson<String>(username),
       'passwordHash': serializer.toJson<String>(passwordHash),
     };
   }
 
-  UserAccount copyWith({int? id, String? username, String? passwordHash}) =>
+  UserAccount copyWith(
+          {int? id, String? uuid, String? username, String? passwordHash}) =>
       UserAccount(
         id: id ?? this.id,
+        uuid: uuid ?? this.uuid,
         username: username ?? this.username,
         passwordHash: passwordHash ?? this.passwordHash,
       );
@@ -139,6 +166,7 @@ class UserAccount extends DataClass implements Insertable<UserAccount> {
   String toString() {
     return (StringBuffer('UserAccount(')
           ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
           ..write('username: $username, ')
           ..write('passwordHash: $passwordHash')
           ..write(')'))
@@ -146,47 +174,57 @@ class UserAccount extends DataClass implements Insertable<UserAccount> {
   }
 
   @override
-  int get hashCode => Object.hash(id, username, passwordHash);
+  int get hashCode => Object.hash(id, uuid, username, passwordHash);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserAccount &&
           other.id == this.id &&
+          other.uuid == this.uuid &&
           other.username == this.username &&
           other.passwordHash == this.passwordHash);
 }
 
 class UserAccountsCompanion extends UpdateCompanion<UserAccount> {
   final Value<int> id;
+  final Value<String> uuid;
   final Value<String> username;
   final Value<String> passwordHash;
   const UserAccountsCompanion({
     this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
     this.username = const Value.absent(),
     this.passwordHash = const Value.absent(),
   });
   UserAccountsCompanion.insert({
     this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
     required String username,
     required String passwordHash,
   })  : username = Value(username),
         passwordHash = Value(passwordHash);
   static Insertable<UserAccount> custom({
     Expression<int>? id,
+    Expression<String>? uuid,
     Expression<String>? username,
     Expression<String>? passwordHash,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uuid != null) 'uuid': uuid,
       if (username != null) 'username': username,
       if (passwordHash != null) 'password_hash': passwordHash,
     });
   }
 
   UserAccountsCompanion copyWith(
-      {Value<int>? id, Value<String>? username, Value<String>? passwordHash}) {
+      {Value<int>? id,
+      Value<String>? uuid,
+      Value<String>? username,
+      Value<String>? passwordHash}) {
     return UserAccountsCompanion(
       id: id ?? this.id,
+      uuid: uuid ?? this.uuid,
       username: username ?? this.username,
       passwordHash: passwordHash ?? this.passwordHash,
     );
@@ -197,6 +235,9 @@ class UserAccountsCompanion extends UpdateCompanion<UserAccount> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uuid.present) {
+      map['uuid'] = Variable<String>(uuid.value);
     }
     if (username.present) {
       map['username'] = Variable<String>(username.value);
@@ -211,6 +252,7 @@ class UserAccountsCompanion extends UpdateCompanion<UserAccount> {
   String toString() {
     return (StringBuffer('UserAccountsCompanion(')
           ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
           ..write('username: $username, ')
           ..write('passwordHash: $passwordHash')
           ..write(')'))
@@ -238,6 +280,15 @@ class $CharactersTable extends Characters
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _uuidMeta = const VerificationMeta('uuid');
+  @override
+  late final GeneratedColumn<String> uuid = GeneratedColumn<String>(
+      'uuid', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      clientDefault: uuidGenerator.v4);
   static const VerificationMeta _userAccountIdMeta =
       const VerificationMeta('userAccountId');
   @override
@@ -258,7 +309,8 @@ class $CharactersTable extends Characters
           GeneratedColumn.constraintIsAlways('CHECK ("is_admin" IN (0, 1))'),
       defaultValue: const Constant(false));
   @override
-  List<GeneratedColumn> get $columns => [id, name, userAccountId, isAdmin];
+  List<GeneratedColumn> get $columns =>
+      [id, name, uuid, userAccountId, isAdmin];
   @override
   String get aliasedName => _alias ?? 'characters';
   @override
@@ -276,6 +328,10 @@ class $CharactersTable extends Characters
           _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('uuid')) {
+      context.handle(
+          _uuidMeta, uuid.isAcceptableOrUnknown(data['uuid']!, _uuidMeta));
     }
     if (data.containsKey('user_account_id')) {
       context.handle(
@@ -302,6 +358,8 @@ class $CharactersTable extends Characters
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      uuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uuid'])!,
       userAccountId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}user_account_id'])!,
       isAdmin: attachedDatabase.typeMapping
@@ -322,6 +380,9 @@ class Character extends DataClass implements Insertable<Character> {
   /// The name of something.
   final String name;
 
+  /// A unique UUID to remove the reliance on sequential IDs in the API.
+  final String uuid;
+
   /// The ID of the user account which this character belongs to.
   final int userAccountId;
 
@@ -330,6 +391,7 @@ class Character extends DataClass implements Insertable<Character> {
   const Character(
       {required this.id,
       required this.name,
+      required this.uuid,
       required this.userAccountId,
       required this.isAdmin});
   @override
@@ -337,6 +399,7 @@ class Character extends DataClass implements Insertable<Character> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
+    map['uuid'] = Variable<String>(uuid);
     map['user_account_id'] = Variable<int>(userAccountId);
     map['is_admin'] = Variable<bool>(isAdmin);
     return map;
@@ -346,6 +409,7 @@ class Character extends DataClass implements Insertable<Character> {
     return CharactersCompanion(
       id: Value(id),
       name: Value(name),
+      uuid: Value(uuid),
       userAccountId: Value(userAccountId),
       isAdmin: Value(isAdmin),
     );
@@ -357,6 +421,7 @@ class Character extends DataClass implements Insertable<Character> {
     return Character(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      uuid: serializer.fromJson<String>(json['uuid']),
       userAccountId: serializer.fromJson<int>(json['userAccountId']),
       isAdmin: serializer.fromJson<bool>(json['isAdmin']),
     );
@@ -367,16 +432,22 @@ class Character extends DataClass implements Insertable<Character> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
+      'uuid': serializer.toJson<String>(uuid),
       'userAccountId': serializer.toJson<int>(userAccountId),
       'isAdmin': serializer.toJson<bool>(isAdmin),
     };
   }
 
   Character copyWith(
-          {int? id, String? name, int? userAccountId, bool? isAdmin}) =>
+          {int? id,
+          String? name,
+          String? uuid,
+          int? userAccountId,
+          bool? isAdmin}) =>
       Character(
         id: id ?? this.id,
         name: name ?? this.name,
+        uuid: uuid ?? this.uuid,
         userAccountId: userAccountId ?? this.userAccountId,
         isAdmin: isAdmin ?? this.isAdmin,
       );
@@ -385,6 +456,7 @@ class Character extends DataClass implements Insertable<Character> {
     return (StringBuffer('Character(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('uuid: $uuid, ')
           ..write('userAccountId: $userAccountId, ')
           ..write('isAdmin: $isAdmin')
           ..write(')'))
@@ -392,13 +464,14 @@ class Character extends DataClass implements Insertable<Character> {
   }
 
   @override
-  int get hashCode => Object.hash(id, name, userAccountId, isAdmin);
+  int get hashCode => Object.hash(id, name, uuid, userAccountId, isAdmin);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Character &&
           other.id == this.id &&
           other.name == this.name &&
+          other.uuid == this.uuid &&
           other.userAccountId == this.userAccountId &&
           other.isAdmin == this.isAdmin);
 }
@@ -406,17 +479,20 @@ class Character extends DataClass implements Insertable<Character> {
 class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<int> id;
   final Value<String> name;
+  final Value<String> uuid;
   final Value<int> userAccountId;
   final Value<bool> isAdmin;
   const CharactersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.uuid = const Value.absent(),
     this.userAccountId = const Value.absent(),
     this.isAdmin = const Value.absent(),
   });
   CharactersCompanion.insert({
     this.id = const Value.absent(),
     required String name,
+    this.uuid = const Value.absent(),
     required int userAccountId,
     this.isAdmin = const Value.absent(),
   })  : name = Value(name),
@@ -424,12 +500,14 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   static Insertable<Character> custom({
     Expression<int>? id,
     Expression<String>? name,
+    Expression<String>? uuid,
     Expression<int>? userAccountId,
     Expression<bool>? isAdmin,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (uuid != null) 'uuid': uuid,
       if (userAccountId != null) 'user_account_id': userAccountId,
       if (isAdmin != null) 'is_admin': isAdmin,
     });
@@ -438,11 +516,13 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   CharactersCompanion copyWith(
       {Value<int>? id,
       Value<String>? name,
+      Value<String>? uuid,
       Value<int>? userAccountId,
       Value<bool>? isAdmin}) {
     return CharactersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      uuid: uuid ?? this.uuid,
       userAccountId: userAccountId ?? this.userAccountId,
       isAdmin: isAdmin ?? this.isAdmin,
     );
@@ -456,6 +536,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (uuid.present) {
+      map['uuid'] = Variable<String>(uuid.value);
     }
     if (userAccountId.present) {
       map['user_account_id'] = Variable<int>(userAccountId.value);
@@ -471,6 +554,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     return (StringBuffer('CharactersCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('uuid: $uuid, ')
           ..write('userAccountId: $userAccountId, ')
           ..write('isAdmin: $isAdmin')
           ..write(')'))
@@ -492,6 +576,15 @@ class $SoundsTable extends Sounds with TableInfo<$SoundsTable, Sound> {
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _uuidMeta = const VerificationMeta('uuid');
+  @override
+  late final GeneratedColumn<String> uuid = GeneratedColumn<String>(
+      'uuid', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      clientDefault: uuidGenerator.v4);
   static const VerificationMeta _pathMeta = const VerificationMeta('path');
   @override
   late final GeneratedColumn<String> path = GeneratedColumn<String>(
@@ -505,7 +598,7 @@ class $SoundsTable extends Sounds with TableInfo<$SoundsTable, Sound> {
       requiredDuringInsert: false,
       defaultValue: const Constant(0.7));
   @override
-  List<GeneratedColumn> get $columns => [id, path, gain];
+  List<GeneratedColumn> get $columns => [id, uuid, path, gain];
   @override
   String get aliasedName => _alias ?? 'sounds';
   @override
@@ -517,6 +610,10 @@ class $SoundsTable extends Sounds with TableInfo<$SoundsTable, Sound> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uuid')) {
+      context.handle(
+          _uuidMeta, uuid.isAcceptableOrUnknown(data['uuid']!, _uuidMeta));
     }
     if (data.containsKey('path')) {
       context.handle(
@@ -539,6 +636,8 @@ class $SoundsTable extends Sounds with TableInfo<$SoundsTable, Sound> {
     return Sound(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      uuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uuid'])!,
       path: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}path'])!,
       gain: attachedDatabase.typeMapping
@@ -556,16 +655,24 @@ class Sound extends DataClass implements Insertable<Sound> {
   /// The primary key.
   final int id;
 
+  /// A unique UUID to remove the reliance on sequential IDs in the API.
+  final String uuid;
+
   /// The path to the sound.
   final String path;
 
   /// The gain of the sound.
   final double gain;
-  const Sound({required this.id, required this.path, required this.gain});
+  const Sound(
+      {required this.id,
+      required this.uuid,
+      required this.path,
+      required this.gain});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['uuid'] = Variable<String>(uuid);
     map['path'] = Variable<String>(path);
     map['gain'] = Variable<double>(gain);
     return map;
@@ -574,6 +681,7 @@ class Sound extends DataClass implements Insertable<Sound> {
   SoundsCompanion toCompanion(bool nullToAbsent) {
     return SoundsCompanion(
       id: Value(id),
+      uuid: Value(uuid),
       path: Value(path),
       gain: Value(gain),
     );
@@ -584,6 +692,7 @@ class Sound extends DataClass implements Insertable<Sound> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Sound(
       id: serializer.fromJson<int>(json['id']),
+      uuid: serializer.fromJson<String>(json['uuid']),
       path: serializer.fromJson<String>(json['path']),
       gain: serializer.fromJson<double>(json['gain']),
     );
@@ -593,13 +702,15 @@ class Sound extends DataClass implements Insertable<Sound> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uuid': serializer.toJson<String>(uuid),
       'path': serializer.toJson<String>(path),
       'gain': serializer.toJson<double>(gain),
     };
   }
 
-  Sound copyWith({int? id, String? path, double? gain}) => Sound(
+  Sound copyWith({int? id, String? uuid, String? path, double? gain}) => Sound(
         id: id ?? this.id,
+        uuid: uuid ?? this.uuid,
         path: path ?? this.path,
         gain: gain ?? this.gain,
       );
@@ -607,6 +718,7 @@ class Sound extends DataClass implements Insertable<Sound> {
   String toString() {
     return (StringBuffer('Sound(')
           ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
           ..write('path: $path, ')
           ..write('gain: $gain')
           ..write(')'))
@@ -614,46 +726,56 @@ class Sound extends DataClass implements Insertable<Sound> {
   }
 
   @override
-  int get hashCode => Object.hash(id, path, gain);
+  int get hashCode => Object.hash(id, uuid, path, gain);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Sound &&
           other.id == this.id &&
+          other.uuid == this.uuid &&
           other.path == this.path &&
           other.gain == this.gain);
 }
 
 class SoundsCompanion extends UpdateCompanion<Sound> {
   final Value<int> id;
+  final Value<String> uuid;
   final Value<String> path;
   final Value<double> gain;
   const SoundsCompanion({
     this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
     this.path = const Value.absent(),
     this.gain = const Value.absent(),
   });
   SoundsCompanion.insert({
     this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
     required String path,
     this.gain = const Value.absent(),
   }) : path = Value(path);
   static Insertable<Sound> custom({
     Expression<int>? id,
+    Expression<String>? uuid,
     Expression<String>? path,
     Expression<double>? gain,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uuid != null) 'uuid': uuid,
       if (path != null) 'path': path,
       if (gain != null) 'gain': gain,
     });
   }
 
   SoundsCompanion copyWith(
-      {Value<int>? id, Value<String>? path, Value<double>? gain}) {
+      {Value<int>? id,
+      Value<String>? uuid,
+      Value<String>? path,
+      Value<double>? gain}) {
     return SoundsCompanion(
       id: id ?? this.id,
+      uuid: uuid ?? this.uuid,
       path: path ?? this.path,
       gain: gain ?? this.gain,
     );
@@ -664,6 +786,9 @@ class SoundsCompanion extends UpdateCompanion<Sound> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uuid.present) {
+      map['uuid'] = Variable<String>(uuid.value);
     }
     if (path.present) {
       map['path'] = Variable<String>(path.value);
@@ -678,6 +803,7 @@ class SoundsCompanion extends UpdateCompanion<Sound> {
   String toString() {
     return (StringBuffer('SoundsCompanion(')
           ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
           ..write('path: $path, ')
           ..write('gain: $gain')
           ..write(')'))
@@ -1017,6 +1143,15 @@ class $ServerProfilesTable extends ServerProfiles
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _uuidMeta = const VerificationMeta('uuid');
+  @override
+  late final GeneratedColumn<String> uuid = GeneratedColumn<String>(
+      'uuid', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      clientDefault: uuidGenerator.v4);
   static const VerificationMeta _mainMenuMusicIdMeta =
       const VerificationMeta('mainMenuMusicId');
   @override
@@ -1071,6 +1206,7 @@ class $ServerProfilesTable extends ServerProfiles
   List<GeneratedColumn> get $columns => [
         id,
         name,
+        uuid,
         mainMenuMusicId,
         menuSelectSoundId,
         menuActivateSoundId,
@@ -1095,6 +1231,10 @@ class $ServerProfilesTable extends ServerProfiles
           _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('uuid')) {
+      context.handle(
+          _uuidMeta, uuid.isAcceptableOrUnknown(data['uuid']!, _uuidMeta));
     }
     if (data.containsKey('main_menu_music_id')) {
       context.handle(
@@ -1141,6 +1281,8 @@ class $ServerProfilesTable extends ServerProfiles
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      uuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uuid'])!,
       mainMenuMusicId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}main_menu_music_id']),
       menuSelectSoundId: attachedDatabase.typeMapping.read(
@@ -1169,6 +1311,9 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
   /// The name of something.
   final String name;
 
+  /// A unique UUID to remove the reliance on sequential IDs in the API.
+  final String uuid;
+
   /// The ID of the main menu music.
   final int? mainMenuMusicId;
 
@@ -1189,6 +1334,7 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
   const ServerProfile(
       {required this.id,
       required this.name,
+      required this.uuid,
       this.mainMenuMusicId,
       this.menuSelectSoundId,
       this.menuActivateSoundId,
@@ -1200,6 +1346,7 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
+    map['uuid'] = Variable<String>(uuid);
     if (!nullToAbsent || mainMenuMusicId != null) {
       map['main_menu_music_id'] = Variable<int>(mainMenuMusicId);
     }
@@ -1221,6 +1368,7 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
     return ServerProfilesCompanion(
       id: Value(id),
       name: Value(name),
+      uuid: Value(uuid),
       mainMenuMusicId: mainMenuMusicId == null && nullToAbsent
           ? const Value.absent()
           : Value(mainMenuMusicId),
@@ -1244,6 +1392,7 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
     return ServerProfile(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      uuid: serializer.fromJson<String>(json['uuid']),
       mainMenuMusicId: serializer.fromJson<int?>(json['mainMenuMusicId']),
       menuSelectSoundId: serializer.fromJson<int?>(json['menuSelectSoundId']),
       menuActivateSoundId:
@@ -1259,6 +1408,7 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
+      'uuid': serializer.toJson<String>(uuid),
       'mainMenuMusicId': serializer.toJson<int?>(mainMenuMusicId),
       'menuSelectSoundId': serializer.toJson<int?>(menuSelectSoundId),
       'menuActivateSoundId': serializer.toJson<int?>(menuActivateSoundId),
@@ -1271,6 +1421,7 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
   ServerProfile copyWith(
           {int? id,
           String? name,
+          String? uuid,
           Value<int?> mainMenuMusicId = const Value.absent(),
           Value<int?> menuSelectSoundId = const Value.absent(),
           Value<int?> menuActivateSoundId = const Value.absent(),
@@ -1280,6 +1431,7 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
       ServerProfile(
         id: id ?? this.id,
         name: name ?? this.name,
+        uuid: uuid ?? this.uuid,
         mainMenuMusicId: mainMenuMusicId.present
             ? mainMenuMusicId.value
             : this.mainMenuMusicId,
@@ -1300,6 +1452,7 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
     return (StringBuffer('ServerProfile(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('uuid: $uuid, ')
           ..write('mainMenuMusicId: $mainMenuMusicId, ')
           ..write('menuSelectSoundId: $menuSelectSoundId, ')
           ..write('menuActivateSoundId: $menuActivateSoundId, ')
@@ -1311,14 +1464,15 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
   }
 
   @override
-  int get hashCode => Object.hash(id, name, mainMenuMusicId, menuSelectSoundId,
-      menuActivateSoundId, port, host, securityContextId);
+  int get hashCode => Object.hash(id, name, uuid, mainMenuMusicId,
+      menuSelectSoundId, menuActivateSoundId, port, host, securityContextId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ServerProfile &&
           other.id == this.id &&
           other.name == this.name &&
+          other.uuid == this.uuid &&
           other.mainMenuMusicId == this.mainMenuMusicId &&
           other.menuSelectSoundId == this.menuSelectSoundId &&
           other.menuActivateSoundId == this.menuActivateSoundId &&
@@ -1330,6 +1484,7 @@ class ServerProfile extends DataClass implements Insertable<ServerProfile> {
 class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
   final Value<int> id;
   final Value<String> name;
+  final Value<String> uuid;
   final Value<int?> mainMenuMusicId;
   final Value<int?> menuSelectSoundId;
   final Value<int?> menuActivateSoundId;
@@ -1339,6 +1494,7 @@ class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
   const ServerProfilesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.uuid = const Value.absent(),
     this.mainMenuMusicId = const Value.absent(),
     this.menuSelectSoundId = const Value.absent(),
     this.menuActivateSoundId = const Value.absent(),
@@ -1349,6 +1505,7 @@ class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
   ServerProfilesCompanion.insert({
     this.id = const Value.absent(),
     required String name,
+    this.uuid = const Value.absent(),
     this.mainMenuMusicId = const Value.absent(),
     this.menuSelectSoundId = const Value.absent(),
     this.menuActivateSoundId = const Value.absent(),
@@ -1359,6 +1516,7 @@ class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
   static Insertable<ServerProfile> custom({
     Expression<int>? id,
     Expression<String>? name,
+    Expression<String>? uuid,
     Expression<int>? mainMenuMusicId,
     Expression<int>? menuSelectSoundId,
     Expression<int>? menuActivateSoundId,
@@ -1369,6 +1527,7 @@ class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (uuid != null) 'uuid': uuid,
       if (mainMenuMusicId != null) 'main_menu_music_id': mainMenuMusicId,
       if (menuSelectSoundId != null) 'menu_select_sound_id': menuSelectSoundId,
       if (menuActivateSoundId != null)
@@ -1382,6 +1541,7 @@ class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
   ServerProfilesCompanion copyWith(
       {Value<int>? id,
       Value<String>? name,
+      Value<String>? uuid,
       Value<int?>? mainMenuMusicId,
       Value<int?>? menuSelectSoundId,
       Value<int?>? menuActivateSoundId,
@@ -1391,6 +1551,7 @@ class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
     return ServerProfilesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      uuid: uuid ?? this.uuid,
       mainMenuMusicId: mainMenuMusicId ?? this.mainMenuMusicId,
       menuSelectSoundId: menuSelectSoundId ?? this.menuSelectSoundId,
       menuActivateSoundId: menuActivateSoundId ?? this.menuActivateSoundId,
@@ -1408,6 +1569,9 @@ class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (uuid.present) {
+      map['uuid'] = Variable<String>(uuid.value);
     }
     if (mainMenuMusicId.present) {
       map['main_menu_music_id'] = Variable<int>(mainMenuMusicId.value);
@@ -1435,6 +1599,7 @@ class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
     return (StringBuffer('ServerProfilesCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('uuid: $uuid, ')
           ..write('mainMenuMusicId: $mainMenuMusicId, ')
           ..write('menuSelectSoundId: $menuSelectSoundId, ')
           ..write('menuActivateSoundId: $menuActivateSoundId, ')
