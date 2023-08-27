@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import 'mixins.dart';
+import '../mixins.dart';
 
 /// The sounds table.
 class Sounds extends Table with IdMixin, UuidMixin {

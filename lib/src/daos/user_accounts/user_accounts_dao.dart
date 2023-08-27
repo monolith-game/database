@@ -1,8 +1,8 @@
 import 'package:crypt/crypt.dart';
 import 'package:drift/drift.dart';
 
-import '../../database.dart';
-import '../tables/user_accounts.dart';
+import '../../../database.dart';
+import '../../tables/user_accounts/user_accounts.dart';
 
 part 'user_accounts_dao.g.dart';
 

@@ -4,16 +4,17 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 
 import '../constants.dart';
-import 'daos/characters_dao.dart';
-import 'daos/server_profiles_dao.dart';
-import 'daos/server_security_contexts_dao.dart';
-import 'daos/sounds_dao.dart';
-import 'daos/user_accounts_dao.dart';
-import 'tables/characters.dart';
-import 'tables/server_profiles.dart';
-import 'tables/server_security_contexts.dart';
-import 'tables/sounds.dart';
-import 'tables/user_accounts.dart';
+import 'daos/server_profiles/server_profiles_dao.dart';
+import 'daos/server_profiles/server_security_contexts_dao.dart';
+import 'daos/sounds/sounds_dao.dart';
+import 'daos/user_accounts/characters_dao.dart';
+import 'daos/user_accounts/user_accounts_dao.dart';
+import 'tables/rooms/zones.dart';
+import 'tables/server_profiles/server_profiles.dart';
+import 'tables/server_profiles/server_security_contexts.dart';
+import 'tables/sounds/sounds.dart';
+import 'tables/user_accounts/characters.dart';
+import 'tables/user_accounts/user_accounts.dart';
 
 part 'database.g.dart';
 
@@ -25,6 +26,7 @@ part 'database.g.dart';
     Sounds,
     ServerProfiles,
     ServerSecurityContexts,
+    Zones,
   ],
   daos: [
     UserAccountsDao,

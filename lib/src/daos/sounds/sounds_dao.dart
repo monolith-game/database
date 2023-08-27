@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
-import '../database.dart';
-import '../tables/sounds.dart';
+import '../../database.dart';
+import '../../tables/sounds/sounds.dart';
 
 part 'sounds_dao.g.dart';
 

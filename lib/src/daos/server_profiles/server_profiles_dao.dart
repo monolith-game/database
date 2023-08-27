@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 
-import '../contexts/server_profile_context.dart';
-import '../database.dart';
-import '../tables/server_profiles.dart';
+import '../../contexts/server_profile_context.dart';
+import '../../database.dart';
+import '../../tables/server_profiles/server_profiles.dart';
 
 part 'server_profiles_dao.g.dart';
 

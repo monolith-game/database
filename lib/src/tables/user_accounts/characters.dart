@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import 'mixins.dart';
+import '../mixins.dart';
 import 'user_accounts.dart';
 
 /// The characters table.

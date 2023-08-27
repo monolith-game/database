@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import 'mixins.dart';
+import '../mixins.dart';
 
 /// A security context for the server.
 class ServerSecurityContexts extends Table with IdMixin {

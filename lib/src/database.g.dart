@@ -1611,6 +1611,268 @@ class ServerProfilesCompanion extends UpdateCompanion<ServerProfile> {
   }
 }
 
+class $ZonesTable extends Zones with TableInfo<$ZonesTable, Zone> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ZonesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _uuidMeta = const VerificationMeta('uuid');
+  @override
+  late final GeneratedColumn<String> uuid = GeneratedColumn<String>(
+      'uuid', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      clientDefault: uuidGenerator.v4);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _zoneMusicIdMeta =
+      const VerificationMeta('zoneMusicId');
+  @override
+  late final GeneratedColumn<int> zoneMusicId = GeneratedColumn<int>(
+      'zone_music_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES sounds (id) ON DELETE SET NULL'));
+  @override
+  List<GeneratedColumn> get $columns => [id, uuid, name, zoneMusicId];
+  @override
+  String get aliasedName => _alias ?? 'zones';
+  @override
+  String get actualTableName => 'zones';
+  @override
+  VerificationContext validateIntegrity(Insertable<Zone> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uuid')) {
+      context.handle(
+          _uuidMeta, uuid.isAcceptableOrUnknown(data['uuid']!, _uuidMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('zone_music_id')) {
+      context.handle(
+          _zoneMusicIdMeta,
+          zoneMusicId.isAcceptableOrUnknown(
+              data['zone_music_id']!, _zoneMusicIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Zone map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Zone(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      uuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uuid'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      zoneMusicId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}zone_music_id']),
+    );
+  }
+
+  @override
+  $ZonesTable createAlias(String alias) {
+    return $ZonesTable(attachedDatabase, alias);
+  }
+}
+
+class Zone extends DataClass implements Insertable<Zone> {
+  /// The primary key.
+  final int id;
+
+  /// A unique UUID to remove the reliance on sequential IDs in the API.
+  final String uuid;
+
+  /// The name of something.
+  final String name;
+
+  /// The ID of the music for this zone.
+  final int? zoneMusicId;
+  const Zone(
+      {required this.id,
+      required this.uuid,
+      required this.name,
+      this.zoneMusicId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['uuid'] = Variable<String>(uuid);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || zoneMusicId != null) {
+      map['zone_music_id'] = Variable<int>(zoneMusicId);
+    }
+    return map;
+  }
+
+  ZonesCompanion toCompanion(bool nullToAbsent) {
+    return ZonesCompanion(
+      id: Value(id),
+      uuid: Value(uuid),
+      name: Value(name),
+      zoneMusicId: zoneMusicId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(zoneMusicId),
+    );
+  }
+
+  factory Zone.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Zone(
+      id: serializer.fromJson<int>(json['id']),
+      uuid: serializer.fromJson<String>(json['uuid']),
+      name: serializer.fromJson<String>(json['name']),
+      zoneMusicId: serializer.fromJson<int?>(json['zoneMusicId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'uuid': serializer.toJson<String>(uuid),
+      'name': serializer.toJson<String>(name),
+      'zoneMusicId': serializer.toJson<int?>(zoneMusicId),
+    };
+  }
+
+  Zone copyWith(
+          {int? id,
+          String? uuid,
+          String? name,
+          Value<int?> zoneMusicId = const Value.absent()}) =>
+      Zone(
+        id: id ?? this.id,
+        uuid: uuid ?? this.uuid,
+        name: name ?? this.name,
+        zoneMusicId: zoneMusicId.present ? zoneMusicId.value : this.zoneMusicId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Zone(')
+          ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
+          ..write('name: $name, ')
+          ..write('zoneMusicId: $zoneMusicId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, uuid, name, zoneMusicId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Zone &&
+          other.id == this.id &&
+          other.uuid == this.uuid &&
+          other.name == this.name &&
+          other.zoneMusicId == this.zoneMusicId);
+}
+
+class ZonesCompanion extends UpdateCompanion<Zone> {
+  final Value<int> id;
+  final Value<String> uuid;
+  final Value<String> name;
+  final Value<int?> zoneMusicId;
+  const ZonesCompanion({
+    this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
+    this.name = const Value.absent(),
+    this.zoneMusicId = const Value.absent(),
+  });
+  ZonesCompanion.insert({
+    this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
+    required String name,
+    this.zoneMusicId = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<Zone> custom({
+    Expression<int>? id,
+    Expression<String>? uuid,
+    Expression<String>? name,
+    Expression<int>? zoneMusicId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (uuid != null) 'uuid': uuid,
+      if (name != null) 'name': name,
+      if (zoneMusicId != null) 'zone_music_id': zoneMusicId,
+    });
+  }
+
+  ZonesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? uuid,
+      Value<String>? name,
+      Value<int?>? zoneMusicId}) {
+    return ZonesCompanion(
+      id: id ?? this.id,
+      uuid: uuid ?? this.uuid,
+      name: name ?? this.name,
+      zoneMusicId: zoneMusicId ?? this.zoneMusicId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (uuid.present) {
+      map['uuid'] = Variable<String>(uuid.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (zoneMusicId.present) {
+      map['zone_music_id'] = Variable<int>(zoneMusicId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ZonesCompanion(')
+          ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
+          ..write('name: $name, ')
+          ..write('zoneMusicId: $zoneMusicId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$MonolithDatabase extends GeneratedDatabase {
   _$MonolithDatabase(QueryExecutor e) : super(e);
   late final $UserAccountsTable userAccounts = $UserAccountsTable(this);
@@ -1619,6 +1881,7 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
   late final $ServerSecurityContextsTable serverSecurityContexts =
       $ServerSecurityContextsTable(this);
   late final $ServerProfilesTable serverProfiles = $ServerProfilesTable(this);
+  late final $ZonesTable zones = $ZonesTable(this);
   late final UserAccountsDao userAccountsDao =
       UserAccountsDao(this as MonolithDatabase);
   late final CharactersDao charactersDao =
@@ -1637,7 +1900,8 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
         characters,
         sounds,
         serverSecurityContexts,
-        serverProfiles
+        serverProfiles,
+        zones
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -1675,6 +1939,13 @@ abstract class _$MonolithDatabase extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('server_profiles', kind: UpdateKind.update),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('sounds',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('zones', kind: UpdateKind.update),
             ],
           ),
         ],

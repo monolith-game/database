@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 
-import '../../database.dart';
-import '../tables/server_security_contexts.dart';
+import '../../../database.dart';
+import '../../tables/server_profiles/server_security_contexts.dart';
 
 part 'server_security_contexts_dao.g.dart';
 

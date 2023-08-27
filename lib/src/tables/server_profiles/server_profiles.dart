@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 
-import 'mixins.dart';
+import '../mixins.dart';
+import '../sounds/sounds.dart';
 import 'server_security_contexts.dart';
-import 'sounds.dart';
 
 /// The server profiles table.
 class ServerProfiles extends Table with IdMixin, NameMixin, UuidMixin {

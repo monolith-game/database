@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
-import '../database.dart';
-import '../tables/characters.dart';
+import '../../database.dart';
+import '../../tables/user_accounts/characters.dart';
 
 part 'characters_dao.g.dart';
 
